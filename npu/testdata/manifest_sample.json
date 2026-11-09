@@ -1,0 +1,609 @@
+{
+  "version": "1.0",
+  "model": "Raon-1-mini-preview",
+  "mode": "mixed_full_d",
+  "bundles": [
+    {
+      "bundle": "L00/rda_in",
+      "layer": 0,
+      "format": "bfp16_gemv",
+      "file": "L00/rda_in.bin",
+      "size_bytes": 59719680,
+      "original_shape": [
+        20688,
+        2560
+      ],
+      "padded_shape": [
+        20736,
+        2560
+      ],
+      "components": [
+        {
+          "name": "model.layers.0.self_attn.q_proj.weight",
+          "gguf_name": "blk.0.attn_q.weight",
+          "short_name": "q",
+          "row_start": 0,
+          "row_end": 5120,
+          "shape": [
+            5120,
+            2560
+          ],
+          "gguf_type": "Q6_K"
+        },
+        {
+          "name": "model.layers.0.self_attn.k_proj.weight",
+          "gguf_name": "blk.0.attn_k.weight",
+          "short_name": "k",
+          "row_start": 5120,
+          "row_end": 10240,
+          "shape": [
+            5120,
+            2560
+          ],
+          "gguf_type": "Q6_K"
+        },
+        {
+          "name": "model.layers.0.self_attn.v_proj.weight",
+          "gguf_name": "blk.0.attn_v.weight",
+          "short_name": "v",
+          "row_start": 10240,
+          "row_end": 15360,
+          "shape": [
+            5120,
+            2560
+          ],
+          "gguf_type": "Q6_K"
+        },
+        {
+          "name": "model.layers.0.self_attn.g_proj.weight",
+          "gguf_name": "blk.0.ssm_g.weight",
+          "short_name": "g",
+          "row_start": 15360,
+          "row_end": 20480,
+          "shape": [
+            5120,
+            2560
+          ],
+          "gguf_type": "Q6_K"
+        },
+        {
+          "name": "model.layers.0.self_attn.f_a_proj.weight",
+          "gguf_name": "blk.0.ssm_f_a.weight",
+          "short_name": "f_a",
+          "row_start": 20480,
+          "row_end": 20608,
+          "shape": [
+            128,
+            2560
+          ],
+          "gguf_type": "F16"
+        },
+        {
+          "name": "model.layers.0.self_attn.b_proj.weight",
+          "gguf_name": "blk.0.ssm_beta.weight",
+          "short_name": "b",
+          "row_start": 20608,
+          "row_end": 20648,
+          "shape": [
+            40,
+            2560
+          ],
+          "gguf_type": "F16"
+        },
+        {
+          "name": "model.layers.0.self_attn.rda_w_proj.weight",
+          "gguf_name": "blk.0.ssm_rda.weight",
+          "short_name": "rda_w",
+          "row_start": 20648,
+          "row_end": 20688,
+          "shape": [
+            40,
+            2560
+          ],
+          "gguf_type": "F16"
+        },
+        {
+          "name": "padding",
+          "short_name": "pad",
+          "row_start": 20688,
+          "row_end": 20736,
+          "shape": [
+            48,
+            2560
+          ],
+          "gguf_type": "ZERO_PAD"
+        }
+      ],
+      "gguf_types": [
+        "Q6_K",
+        "F16"
+      ],
+      "sha256": "33722a996ad8726a87a7f203ba97066bfccbd036e56431d3ddfe391dd659b5ff",
+      "description": "RDA input projection bundle [q; k; v; g; f_a; b; rda_w]"
+    },
+    {
+      "bundle": "L00/f_b",
+      "layer": 0,
+      "format": "bfp16_gemv",
+      "file": "L00/f_b.bin",
+      "size_bytes": 1474560,
+      "original_shape": [
+        5120,
+        128
+      ],
+      "padded_shape": [
+        5120,
+        256
+      ],
+      "components": [
+        {
+          "name": "model.layers.0.self_attn.f_b_proj.weight",
+          "gguf_name": "blk.0.ssm_f_b.weight",
+          "shape": [
+            5120,
+            128
+          ],
+          "padded_shape": [
+            5120,
+            256
+          ],
+          "gguf_type": "F16"
+        }
+      ],
+      "gguf_types": [
+        "F16"
+      ],
+      "sha256": "e56fe2c4cca2bd4285a6fdc5cdd20a759c319c0f9ed2769ec964bbe836d3b8a5",
+      "description": "RDA f_b projection (K padded 128->256)"
+    },
+    {
+      "bundle": "L01/moe_b1",
+      "layer": 1,
+      "format": "q4nx_gemv_bundle",
+      "file": "L01/moe_b1.bin",
+      "size_bytes": 445644800,
+      "original_shape": [
+        128,
+        2176,
+        2560
+      ],
+      "padded_shape": [
+        128,
+        2176,
+        2560
+      ],
+      "expert_count": 128,
+      "expert_bytes": 3481600,
+      "components": [
+        {
+          "name": "model.layers.1.moe.experts.0..127.(gate|up)_proj.weight",
+          "gguf_name": "blk.1.ffn_gate_exps.weight + blk.1.ffn_up_exps.weight",
+          "shape_per_expert": [
+            2176,
+            2560
+          ],
+          "expert_range": [
+            0,
+            128
+          ],
+          "gguf_type": "Q4_K"
+        }
+      ],
+      "gguf_types": [
+        "Q4_K",
+        "Q4_K"
+      ],
+      "sha256": "8ec5f91c7dd8b82e40d2aaf4de9794b7e65e6e721bda5450e6fbefd36e7e5ac0",
+      "description": "128 routed experts gate+up q4nx (shared expert excluded)"
+    },
+    {
+      "bundle": "L01/moe_b2",
+      "layer": 1,
+      "format": "bfp16_gemv_bundle",
+      "file": "L01/moe_b2.bin",
+      "size_bytes": 475545600,
+      "original_shape": [
+        129,
+        2560,
+        1088
+      ],
+      "padded_shape": [
+        129,
+        2560,
+        1280
+      ],
+      "expert_count": 129,
+      "expert_bytes": 3686400,
+      "components": [
+        {
+          "name": "model.layers.1.moe.experts.0..127.down_proj.weight",
+          "gguf_name": "blk.1.ffn_down_exps.weight",
+          "shape_per_expert": [
+            2560,
+            1088
+          ],
+          "padded_shape_per_expert": [
+            2560,
+            1280
+          ],
+          "expert_range": [
+            0,
+            128
+          ],
+          "gguf_type": "Q8_0"
+        },
+        {
+          "name": "model.layers.1.moe.shared_experts.down_proj.weight",
+          "gguf_name": "blk.1.ffn_down_shexp.weight",
+          "shape_per_expert": [
+            2560,
+            1088
+          ],
+          "padded_shape_per_expert": [
+            2560,
+            1280
+          ],
+          "expert_id": 128,
+          "gguf_type": "Q8_0"
+        }
+      ],
+      "gguf_types": [
+        "Q8_0"
+      ],
+      "sha256": "de480ff7783c51adf0ec9abf7dd0386c11946770986deb85741202eadffddaf2",
+      "description": "128 routed experts + 1 shared expert (e=128) down 9-bit bfp16 (K padded 1088->1280)"
+    },
+    {
+      "bundle": "L01/shared_gu",
+      "layer": 1,
+      "format": "bfp16_gemv",
+      "file": "L01/shared_gu.bin",
+      "size_bytes": 6266880,
+      "original_shape": [
+        2176,
+        2560
+      ],
+      "padded_shape": [
+        2176,
+        2560
+      ],
+      "components": [
+        {
+          "name": "model.layers.1.moe.shared_experts.gate_proj.weight",
+          "gguf_name": "blk.1.ffn_gate_shexp.weight",
+          "row_start": 0,
+          "row_end": 1088,
+          "shape": [
+            1088,
+            2560
+          ],
+          "gguf_type": "Q6_K"
+        },
+        {
+          "name": "model.layers.1.moe.shared_experts.up_proj.weight",
+          "gguf_name": "blk.1.ffn_up_shexp.weight",
+          "row_start": 1088,
+          "row_end": 2176,
+          "shape": [
+            1088,
+            2560
+          ],
+          "gguf_type": "Q6_K"
+        }
+      ],
+      "gguf_types": [
+        "Q6_K"
+      ],
+      "sha256": "ab961a9309eed38dbfbf90fefccc9dc7409e65a00400e0c1760c9cc962d11f6d",
+      "description": "MoE shared expert gate+up projection bundle (9-bit bfp16)"
+    },
+    {
+      "bundle": "L03/k_b",
+      "layer": 3,
+      "format": "bfp16_gemv",
+      "file": "L03/k_b.bin",
+      "size_bytes": 2949120,
+      "original_shape": [
+        5120,
+        512
+      ],
+      "padded_shape": [
+        5120,
+        512
+      ],
+      "components": [
+        {
+          "name": "model.layers.3.self_attn.kv_b_proj.weight (key_part)",
+          "gguf_name": "blk.3.attn_k_b.weight",
+          "shape": [
+            5120,
+            512
+          ],
+          "raw_gguf_shape": [
+            40,
+            512,
+            128
+          ],
+          "gguf_type": "Q8_0",
+          "hf_interleave_rule": "Head h=0..39 keys occupy rows [h*256 : h*256+128] in HF kv_b_proj.weight"
+        }
+      ],
+      "gguf_types": [
+        "Q8_0"
+      ],
+      "sha256": "fdeb817d188ed025f9c1b2e9fa20110bee9069e85c939257c393c58b128317a4",
+      "description": "MLA k_b projection (transposed [40, 128, 512] -> [5120, 512])"
+    },
+    {
+      "bundle": "lm_head",
+      "layer": null,
+      "format": "bfp16_gemv",
+      "file": "lm_head.bin",
+      "size_bytes": 749076480,
+      "original_shape": [
+        259840,
+        2560
+      ],
+      "padded_shape": [
+        260096,
+        2560
+      ],
+      "components": [
+        {
+          "name": "lm_head.weight",
+          "gguf_name": "output.weight",
+          "row_start": 0,
+          "row_end": 259840,
+          "shape": [
+            259840,
+            2560
+          ],
+          "gguf_type": "Q6_K"
+        },
+        {
+          "name": "padding",
+          "row_start": 259840,
+          "row_end": 260096,
+          "shape": [
+            256,
+            2560
+          ],
+          "gguf_type": "ZERO_PAD"
+        }
+      ],
+      "gguf_types": [
+        "Q6_K"
+      ],
+      "sha256": "ae0a49460678dc34f07f67ebe8809da92a14562014a68aae938a42d14ebdb34e",
+      "description": "Output vocabulary projection (lm_head, 259840 padded to 260096)"
+    },
+    {
+      "bundle": "L00/host",
+      "layer": 0,
+      "format": "host_safetensors",
+      "file": "L00/host.safetensors",
+      "size_bytes": 853296,
+      "components": [
+        {
+          "name": "model.layers.0.input_layernorm.weight",
+          "shape": [
+            2560
+          ],
+          "dtype": "bfloat16",
+          "stored_dtype": "BF16"
+        },
+        {
+          "name": "model.layers.0.mlp_raon_mhc.alpha_post",
+          "shape": [],
+          "dtype": "bfloat16",
+          "stored_dtype": "BF16"
+        },
+        {
+          "name": "model.layers.0.mlp_raon_mhc.alpha_pre",
+          "shape": [],
+          "dtype": "bfloat16",
+          "stored_dtype": "BF16"
+        },
+        {
+          "name": "model.layers.0.mlp_raon_mhc.b_post",
+          "shape": [
+            4
+          ],
+          "dtype": "bfloat16",
+          "stored_dtype": "BF16"
+        },
+        {
+          "name": "model.layers.0.mlp_raon_mhc.b_pre",
+          "shape": [
+            4
+          ],
+          "dtype": "bfloat16",
+          "stored_dtype": "BF16"
+        },
+        {
+          "name": "model.layers.0.mlp_raon_mhc.phi_post",
+          "shape": [
+            4,
+            10240
+          ],
+          "dtype": "bfloat16",
+          "stored_dtype": "BF16"
+        },
+        {
+          "name": "model.layers.0.mlp_raon_mhc.phi_pre",
+          "shape": [
+            4,
+            10240
+          ],
+          "dtype": "bfloat16",
+          "stored_dtype": "BF16"
+        },
+        {
+          "name": "model.layers.0.mlp_raon_mhc.res.alpha_z",
+          "shape": [],
+          "dtype": "bfloat16",
+          "stored_dtype": "BF16"
+        },
+        {
+          "name": "model.layers.0.mlp_raon_mhc.res.b_z",
+          "shape": [
+            9
+          ],
+          "dtype": "bfloat16",
+          "stored_dtype": "BF16"
+        },
+        {
+          "name": "model.layers.0.mlp_raon_mhc.res.eta",
+          "shape": [],
+          "dtype": "float32",
+          "stored_dtype": "float32"
+        },
+        {
+          "name": "model.layers.0.mlp_raon_mhc.res.phi_z",
+          "shape": [
+            9,
+            10240
+          ],
+          "dtype": "bfloat16",
+          "stored_dtype": "BF16"
+        },
+        {
+          "name": "model.layers.0.post_attention_layernorm.weight",
+          "shape": [
+            2560
+          ],
+          "dtype": "bfloat16",
+          "stored_dtype": "BF16"
+        },
+        {
+          "name": "model.layers.0.self_attn.A_log",
+          "shape": [
+            40
+          ],
+          "dtype": "float32",
+          "stored_dtype": "float32"
+        },
+        {
+          "name": "model.layers.0.self_attn.dt_bias",
+          "shape": [
+            5120
+          ],
+          "dtype": "float32",
+          "stored_dtype": "float32"
+        },
+        {
+          "name": "model.layers.0.self_attn.k_conv1d.weight",
+          "shape": [
+            5120,
+            4
+          ],
+          "dtype": "bfloat16",
+          "stored_dtype": "BF16"
+        },
+        {
+          "name": "model.layers.0.self_attn.o_norm.weight",
+          "shape": [
+            128
+          ],
+          "dtype": "bfloat16",
+          "stored_dtype": "BF16"
+        },
+        {
+          "name": "model.layers.0.self_attn.q_conv1d.weight",
+          "shape": [
+            5120,
+            4
+          ],
+          "dtype": "bfloat16",
+          "stored_dtype": "BF16"
+        },
+        {
+          "name": "model.layers.0.self_attn.v_conv1d.weight",
+          "shape": [
+            5120,
+            4
+          ],
+          "dtype": "bfloat16",
+          "stored_dtype": "BF16"
+        },
+        {
+          "name": "model.layers.0.self_attn_raon_mhc.alpha_post",
+          "shape": [],
+          "dtype": "bfloat16",
+          "stored_dtype": "BF16"
+        },
+        {
+          "name": "model.layers.0.self_attn_raon_mhc.alpha_pre",
+          "shape": [],
+          "dtype": "bfloat16",
+          "stored_dtype": "BF16"
+        },
+        {
+          "name": "model.layers.0.self_attn_raon_mhc.b_post",
+          "shape": [
+            4
+          ],
+          "dtype": "bfloat16",
+          "stored_dtype": "BF16"
+        },
+        {
+          "name": "model.layers.0.self_attn_raon_mhc.b_pre",
+          "shape": [
+            4
+          ],
+          "dtype": "bfloat16",
+          "stored_dtype": "BF16"
+        },
+        {
+          "name": "model.layers.0.self_attn_raon_mhc.phi_post",
+          "shape": [
+            4,
+            10240
+          ],
+          "dtype": "bfloat16",
+          "stored_dtype": "BF16"
+        },
+        {
+          "name": "model.layers.0.self_attn_raon_mhc.phi_pre",
+          "shape": [
+            4,
+            10240
+          ],
+          "dtype": "bfloat16",
+          "stored_dtype": "BF16"
+        },
+        {
+          "name": "model.layers.0.self_attn_raon_mhc.res.alpha_z",
+          "shape": [],
+          "dtype": "bfloat16",
+          "stored_dtype": "BF16"
+        },
+        {
+          "name": "model.layers.0.self_attn_raon_mhc.res.b_z",
+          "shape": [
+            9
+          ],
+          "dtype": "bfloat16",
+          "stored_dtype": "BF16"
+        },
+        {
+          "name": "model.layers.0.self_attn_raon_mhc.res.eta",
+          "shape": [],
+          "dtype": "float32",
+          "stored_dtype": "float32"
+        },
+        {
+          "name": "model.layers.0.self_attn_raon_mhc.res.phi_z",
+          "shape": [
+            9,
+            10240
+          ],
+          "dtype": "bfloat16",
+          "stored_dtype": "BF16"
+        }
+      ],
+      "sha256": "2151aa0dd249aa6e7cf97c47f60f0ea23d6a9eb8ca17659178a2df66c9b5fcb0",
+      "description": "Host tensors for layer 0 (norms, routers, conv1d, mHC)"
+    }
+  ]
+}

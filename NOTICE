@@ -1,0 +1,43 @@
+raon-npu — Copyright (C) 2026 raon-npu authors. Licensed under the Apache License, Version 2.0.
+
+AMD IRON (https://github.com/amd/IRON)
+Commit b3ba3cf3a138c21e021d5ee2d6794573cd7a3287, Apache-2.0.
+Files containing adapted portions:
+  - kernels/gemv/__init__.py
+  - kernels/gemv/design.py
+  - kernels/gemv/op.py
+  - kernels/gemv/reference.py
+  - kernels/gemv_bfp16/design.py
+  - kernels/gemv_bfp16/op.py
+  - kernels/moe/design.py
+  - quant/q4nx.py
+
+mlir-aie v1.4.4 (https://github.com/Xilinx/mlir-aie)
+Commit e5c705c7b04bb8470db7364287843ba96e487a6e,
+Apache-2.0 WITH LLVM-exception.
+Files containing adapted portions or using the LLVM exception license:
+  - kernels/gemm_prefill/mmul.cc
+  - kernels/gemv/kernel.py
+  - kernels/gemv/q4nx_gemv.cc
+  - kernels/gemv_bfp16/bfp16_gemv.cc
+  - kernels/gemv_bfp16/kernel.py
+  - kernels/gemv_unified/bfp16_gemv.cc
+  - kernels/moe_grouped/grouped_mmul.cc
+
+The files in the mlir-aie group carry the LLVM exception; see
+LICENSES/LLVM-exception.txt. Exact upstream attribution for the two prefill
+mmul implementations is not fully established; their existing license is retained.
+Copyright notices are in the individual file headers. The upstream source
+copies have no NOTICE file; no additional upstream NOTICE text is asserted here.
+
+KRAFTON Raon-1-mini-preview
+https://huggingface.co/KRAFTON/Raon-1-mini-preview
+Apache-2.0. host/raon.py adapts the Helmert basis and mHC constants from
+modeling_raon1_mini.py and model configuration from configuration_raon1_mini.py;
+host/backend.py adapts the SiTU-GLU reference expression. These are NumPy
+adaptations, modified by the raon-npu authors, 2026.
+Model weights are not included in this repository; KRAFTON distributes them
+separately under Apache-2.0.
+
+This is an unofficial personal project, unaffiliated with KRAFTON or AMD.
+All trademarks belong to their respective owners.

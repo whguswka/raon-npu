@@ -1,0 +1,16 @@
+__pycache__/
+*.pyc
+build/
+out/
+dumps/
+*.safetensors
+*.q4nx
+*.npy
+*.npz
+quant/eval_out/
+host/out/
+
+# Local installation/conversion artifacts
+hf/
+weights-d/
+.venv-convert/
