@@ -295,7 +295,10 @@ def test_export_host_tensors_bf16_bf16_header_bit_exact_and_manifest():
 
         orig = {
             "model.layers.0.input_layernorm.weight": torch.tensor([0.1, -2.3, 3.75, 1e-8], dtype=torch.bfloat16),
-            "model.layers.0.mlp_raon_mhc.alpha_pre": torch.tensor([0.015625, -0.3], dtype=torch.bfloat16),
+            "model.layers.0.mlp_raon_mhc.alpha_pre": torch.tensor(0.015625, dtype=torch.bfloat16),
+            "model.layers.0.mlp_raon_mhc.alpha_post": torch.tensor(-0.3, dtype=torch.bfloat16),
+            "model.layers.0.mlp_raon_mhc.res.alpha_z": torch.tensor(0.5, dtype=torch.bfloat16),
+            "model.layers.0.mlp_raon_mhc.res.eta": torch.tensor(0.125, dtype=torch.float32),
             "model.layers.0.mlp_raon_mhc.res.phi_z": torch.arange(6, dtype=torch.float32) * 0.25,
             "model.norm.weight": torch.arange(4, dtype=torch.float32) * 0.5,
             "model.embed_tokens.weight": torch.tensor([1e-9, 2.0, -3.5], dtype=torch.bfloat16),
@@ -321,6 +324,17 @@ def test_export_host_tensors_bf16_bf16_header_bit_exact_and_manifest():
         assert comps["model.layers.0.mlp_raon_mhc.res.phi_z"]["dtype"] == "float32"
         assert comps["model.layers.0.mlp_raon_mhc.res.phi_z"]["stored_dtype"] == "F32"
         assert comps["model.norm.weight"]["dtype"] == "float32"
+        assert comps["model.layers.0.mlp_raon_mhc.res.eta"]["dtype"] == "float32"
+        assert comps["model.layers.0.mlp_raon_mhc.res.eta"]["stored_dtype"] == "F32"
+        assert comps["model.layers.0.mlp_raon_mhc.res.eta"]["shape"] == []
+        for name in (
+            "model.layers.0.mlp_raon_mhc.alpha_pre",
+            "model.layers.0.mlp_raon_mhc.alpha_post",
+            "model.layers.0.mlp_raon_mhc.res.alpha_z",
+        ):
+            assert comps[name]["dtype"] == "bfloat16"
+            assert comps[name]["stored_dtype"] == "BF16"
+            assert comps[name]["shape"] == []
         for name, t in orig.items():
             assert comps[name]["shape"] == list(t.shape)
 
@@ -550,6 +564,67 @@ def test_fix_host_only_converts_u16_to_bf16_and_preserves_bits():
         assert mf["bundles"][0]["sha256"] == compute_sha256(file_path)
 
 
+def test_fix_host_only_handles_0d_tensors():
+    """--fix-host-only rewrites 0d U16 bf16 alongside an unchanged 0d F32 tensor."""
+    torch = pytest.importorskip("torch")
+    import safetensors.numpy as snp
+    from safetensors import safe_open
+
+    with tempfile.TemporaryDirectory() as tmpdir:
+        out_dir = Path(tmpdir) / "out"
+        out_dir.mkdir()
+
+        orig_bf16 = torch.tensor(0.015625, dtype=torch.bfloat16)
+        alpha_bits = orig_bf16.view(torch.int16).numpy().view(np.uint16)
+        file_path = out_dir / "host_global.safetensors"
+        snp.save_file(
+            {"alpha": alpha_bits, "eta": np.array(0.125, dtype=np.float32)},
+            str(file_path),
+        )
+
+        manifest = {
+            "version": "1.0",
+            "model": "test",
+            "mode": "test",
+            "bundles": [
+                {
+                    "bundle": "host_global",
+                    "layer": None,
+                    "format": "host_safetensors",
+                    "file": "host_global.safetensors",
+                    "size_bytes": file_path.stat().st_size,
+                    "components": [
+                        {"name": "alpha", "shape": [], "dtype": "bfloat16", "stored_dtype": "uint16"},
+                        {"name": "eta", "shape": [], "dtype": "float32", "stored_dtype": "F32"},
+                    ],
+                    "sha256": compute_sha256(file_path),
+                    "description": "test",
+                }
+            ],
+        }
+        with open(out_dir / "manifest.json", "w") as f:
+            json.dump(manifest, f)
+
+        result = fix_host_only(out_dir)
+        assert result["updated"]
+        assert result["host_bundles_checked"] == 1
+
+        with open(file_path, "rb") as f:
+            import struct
+            header_len = struct.unpack("<Q", f.read(8))[0]
+            header = json.loads(f.read(header_len).decode("utf-8"))
+        assert header["alpha"]["dtype"] == "BF16"
+        assert header["eta"]["dtype"] == "F32"
+
+        with safe_open(str(file_path), framework="pt") as f:
+            alpha = f.get_tensor("alpha")
+            eta = f.get_tensor("eta")
+        assert alpha.shape == ()
+        assert eta.shape == ()
+        assert torch.equal(alpha.view(torch.int16), orig_bf16.view(torch.int16))
+        assert eta.item() == 0.125
+
+
 def test_fix_host_only_recomputes_manifest_total_sizes():
     """--fix-host-only recomputes total_size_bytes/mb/gb as the sum of bundle size_bytes."""
     torch = pytest.importorskip("torch")
@@ -646,6 +721,63 @@ def test_save_tensors_verified_preserves_original_on_bit_mismatch():
         with pytest.raises(RuntimeError, match="Bit pattern changed"):
             _save_tensors_verified(bad_dict, out_file, expected_bits)
 
+        assert compute_sha256(out_file) == original_sha, "original file must be untouched"
+
+
+def test_save_tensors_verified_accepts_0d_tensors():
+    """Verified safetensors writes preserve dtype, shape, and bits for 0d tensors."""
+    torch = pytest.importorskip("torch")
+    from safetensors import safe_open
+
+    with tempfile.TemporaryDirectory() as tmpdir:
+        out_file = Path(tmpdir) / "host.safetensors"
+        tensors = {
+            "eta": torch.tensor(0.125, dtype=torch.float32),
+            "nan": torch.tensor(float("nan"), dtype=torch.float32),
+            "alpha": torch.tensor(0.015625, dtype=torch.bfloat16),
+            "step": torch.tensor(7, dtype=torch.int64),
+        }
+        expected_bits = {k: _tensor_bits(v) for k, v in tensors.items()}
+
+        _save_tensors_verified(tensors, out_file, expected_bits)
+
+        with safe_open(str(out_file), framework="pt") as f:
+            for name, original in tensors.items():
+                stored = f.get_tensor(name)
+                assert stored.dtype == original.dtype
+                assert stored.shape == ()
+                assert _tensor_bits(stored).tobytes() == _tensor_bits(original).tobytes()
+
+
+def test_save_tensors_verified_detects_0d_bit_mismatch():
+    """0d value and signed-zero bit mismatches fail without replacing the original."""
+    torch = pytest.importorskip("torch")
+    import safetensors.torch as st
+
+    with tempfile.TemporaryDirectory() as tmpdir:
+        out_file = Path(tmpdir) / "host.safetensors"
+        original = {
+            "eta": torch.tensor(0.125, dtype=torch.float32),
+            "zero": torch.tensor(0.0, dtype=torch.float32),
+        }
+        st.save_file(original, str(out_file))
+        original_sha = compute_sha256(out_file)
+        expected_bits = {k: _tensor_bits(v) for k, v in original.items()}
+
+        bad_value = {
+            "eta": torch.tensor(0.25, dtype=torch.float32),
+            "zero": torch.tensor(0.0, dtype=torch.float32),
+        }
+        with pytest.raises(RuntimeError, match="Bit pattern changed"):
+            _save_tensors_verified(bad_value, out_file, expected_bits)
+        assert compute_sha256(out_file) == original_sha, "original file must be untouched"
+
+        bad_bits = {
+            "eta": torch.tensor(0.125, dtype=torch.float32),
+            "zero": torch.tensor(-0.0, dtype=torch.float32),
+        }
+        with pytest.raises(RuntimeError, match="Bit pattern changed"):
+            _save_tensors_verified(bad_bits, out_file, expected_bits)
         assert compute_sha256(out_file) == original_sha, "original file must be untouched"
 
 

@@ -27,6 +27,7 @@ Windows 11, AMD Ryzen AI 300 계열 XDNA 2 NPU, **메모리 64 GB**가 대상입
 
 - Git for Windows: `winget install Git.Git` 실행 후 PowerShell을 다시 엽니다.
 - [python.org](https://www.python.org/downloads/windows/)의 **Python 3.13 64비트**를 설치하고 PATH 추가를 선택합니다. Microsoft Store 판은 사용하지 않습니다.
+- 3단계(가중치 변환)에만 쓰는 **Python 3.12 64비트**를 python.org에서 하나 더 설치합니다. 설치 화면의 "Add python.exe to PATH"는 체크하지 않아 `python`이 3.13으로 남게 합니다(도구 설치가 3.13을 요구합니다). 3단계에서 `py -3.12`로 부릅니다. 변환을 다른 기계에서 하면 그 기계에 설치합니다.
 - NPU 드라이버: 장치 관리자에 **NPU Compute Accelerator Device**가 표시되어야 합니다. 32.0.203.314에서 시험했습니다. 이 판 이상을 사용하되 더 새 판은 별도 확인이 필요합니다.
 - 도구 설치에는 관리자 권한이 필요합니다. 서버는 일반 사용자로 실행합니다.
 

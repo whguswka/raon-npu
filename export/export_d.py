@@ -181,7 +181,10 @@ def _save_tensors_verified(torch_dict: dict, out_file: Path, expected_bits: dict
                         f"Temp safetensors shape {list(t.shape)} != expected {list(want.shape)} "
                         f"for {name}; refusing to replace {out_file}"
                     )
-                if not np.array_equal(_tensor_bits(t).view(np.uint16), expected_bits[name].view(np.uint16)):
+                if not np.array_equal(
+                    _tensor_bits(t).reshape(-1).view(np.uint8),
+                    expected_bits[name].reshape(-1).view(np.uint8),
+                ):
                     raise RuntimeError(
                         f"Bit pattern changed while writing {out_file} (tensor {name}); keeping original file"
                     )

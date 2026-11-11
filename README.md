@@ -27,6 +27,7 @@ Before setup, install:
 
 - Git for Windows: `winget install Git.Git` (reopen PowerShell afterwards).
 - Python **3.13 64-bit from [python.org](https://www.python.org/downloads/windows/)**, not Microsoft Store; enable PATH during installation.
+- Python **3.12 64-bit** from python.org as a second install, for step 3 (weight conversion) only. Leave "Add python.exe to PATH" unchecked so that `python` stays 3.13 (toolchain setup requires it); step 3 runs it as `py -3.12`. If you convert on another machine, install it there instead.
 - The NPU driver: Device Manager should show **NPU Compute Accelerator Device**. Testing used driver 32.0.203.314; use that version or newer, with newer versions requiring validation.
 - Administrator access for toolchain setup. Normal serving runs as the current user.
 
